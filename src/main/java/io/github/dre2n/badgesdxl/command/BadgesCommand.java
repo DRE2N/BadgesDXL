@@ -17,8 +17,18 @@
 package io.github.dre2n.badgesdxl.command;
 
 import io.github.dre2n.badgesdxl.BadgesDXL;
+import io.github.dre2n.badgesdxl.config.BMessages;
+import io.github.dre2n.badgesdxl.config.BadgeData;
+import io.github.dre2n.caliburn.item.UniversalItem;
 import io.github.dre2n.dungeonsxl.util.commons.command.BRCommand;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 /**
  * @author Daniel Saukel
@@ -31,8 +41,8 @@ public class BadgesCommand extends BRCommand {
         this.plugin = plugin;
         setCommand("badges");
         setMinArgs(0);
-        setMaxArgs(0);
-        setHelp(""/*BMessages.HELP_CMD_BADGES.getMessage()*/);
+        setMaxArgs(1);
+        setHelp(BMessages.HELP_CMD_BADGES.getMessage());
         setPermission("dxl.badges");
         setPlayerCommand(true);
         setConsoleCommand(false);
@@ -40,7 +50,17 @@ public class BadgesCommand extends BRCommand {
 
     @Override
     public void onExecute(String[] args, CommandSender sender) {
-        // Do stuff
+        Player player = (Player) sender;
+        if (args.length == 2 && Bukkit.getPlayer(args[1]) != null) {
+            player = Bukkit.getPlayer(args[1]);
+        }
+
+        BadgeData data = plugin.getDataByPlayer(player);
+        Inventory gui = Bukkit.createInventory(null, 54);
+        for (Map.Entry<UniversalItem, Long> entry : data.getBadges().entrySet()) {
+            entry.getKey().toItemStack(1).getItemMeta().getLore().add(ChatColor.DARK_RED + new Date(entry.getValue() * 1000).toString());
+        }
+        ((Player) sender).openInventory(gui);
     }
 
 }
